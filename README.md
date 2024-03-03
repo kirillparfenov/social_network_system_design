@@ -125,8 +125,8 @@ DAU READ traffic per second = DAU read per day / 86 400 = 5364 TB / 86 400 = 62 
 
 CAPACITY
 ```
-количество дисков SSD(100TB) на 1 год = 3
-65 * DAU write traffic per day / SSD capacity =
+количество дисков SSD(100TB) на 1 год =
+365 * DAU write traffic per day / SSD capacity =
 365 * 203 TB / 100 TB = 741
 
 количество дисков SSD(100TB) + 50% для подстраховки = 1112
