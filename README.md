@@ -116,11 +116,11 @@ User requests per day = 0.14 + 0.14 + 10 + 100 + 20 + 50 + 3 + 200 + 200 + 200 =
 
 RPS = DAU(10 000 000) * 783 / 86 400 = 90 657;
 
-DAU WRITE traffic per day = DAU * WRITE User traffic = 10 000 000 * 20 MB = 203 TB;
-DAU WRITE traffic per second = DAU write per day / 86 400 = 203 TB / 86 400 = 2 GB;
+DAU WRITE traffic per day = DAU * WRITE User traffic = 10 000 000 * 20 MB = 203 TB/day;
+DAU WRITE traffic per second = DAU write per day / 86 400 = 203 TB / 86 400 = 2 GB/sec;
 
-DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 536 MB = 5364 TB;
-DAU READ traffic per second = DAU read per day / 86 400 = 5364 TB / 86 400 = 62 GB;
+DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 536 MB = 5364 TB/day;
+DAU READ traffic per second = DAU read per day / 86 400 = 5364 TB / 86 400 = 62 GB/sec;
 ```
 
 CAPACITY
