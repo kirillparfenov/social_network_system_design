@@ -120,7 +120,7 @@ DAU READ traffic per second = DAU read per day / 86 400 = 5,69 GB / 86 400 = 65 
 CAPACITY
 ```
 количество дисков HDD(6TB) на 1 год =
-365 * DAU write traffic per day / SSD capacity =
+365 * DAU write traffic per day / HDD capacity =
 365 * 20 GB / 6 TB = 1,2 = 2
 ```
 
