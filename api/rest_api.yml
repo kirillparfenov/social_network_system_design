@@ -1,0 +1,491 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080/api
+  description: Generated server url
+paths:
+  /social/v1/posts/{postId}:
+    put:
+      tags:
+      - posts-controller
+      summary: Отредактировать пост
+      operationId: updatePost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+        required: true
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+      - posts-controller
+      summary: Просмотр поста
+      operationId: getPost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+    delete:
+      tags:
+      - posts-controller
+      summary: Удалить пост
+      operationId: deletePost
+      parameters:
+      - name: postId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /social/v1/comments/{commentId}:
+    put:
+      tags:
+      - comment-controller
+      summary: Отредактировать комментарий
+      operationId: updateComment
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+      - comment-controller
+      summary: Удалить комментарий
+      operationId: deleteComment_1
+      parameters:
+      - name: commentId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /social/v1/chat/personal/{messageId}:
+    put:
+      tags:
+      - personal-chat-controller
+      summary: Отредактировать личное сообщение
+      operationId: updatePersonalMessage
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalMessage'
+        required: true
+      responses:
+        "200":
+          description: OK
+    delete:
+      tags:
+      - personal-chat-controller
+      summary: Удалить личное сообщение
+      operationId: deletePersonalMessage
+      parameters:
+      - name: messageId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+  /social/v1/subscribe/users/{userId}:
+    post:
+      tags:
+      - subscribe-controller
+      summary: Подписаться на путешественника
+      operationId: createComment
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscribe'
+        required: true
+      responses:
+        "201":
+          description: Created
+  /social/v1/posts:
+    post:
+      tags:
+      - posts-controller
+      summary: "Публикация постов из путешествий с фотографиями, небольшим описани\
+        ем и привязкой к конкретному месту путешествия"
+      operationId: filterPosts_1
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        "201":
+          description: Created
+  /social/v1/places/:
+    post:
+      tags:
+      - places-filter-controller
+      summary: Фильтрация мест для путешествий
+      operationId: filterPlaces
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+  /social/v1/media/photo:
+    post:
+      tags:
+      - media-controller
+      summary: Загрузить фото и получить ссылку на скачивание
+      operationId: uploadPhoto
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                type: string
+  /social/v1/feed/users/{userId}:
+    post:
+      tags:
+      - feed-controller
+      summary: Фильтрация ленты путешественников
+      operationId: filterFeed
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: userId
+        in: path
+        description: ID пользователя по которому отдать ленту
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+  /social/v1/comments/:
+    post:
+      tags:
+      - comment-controller
+      summary: Добавить комментарий
+      operationId: filterComments_1
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        "201":
+          description: Created
+  /social/v1/chat/personal:
+    post:
+      tags:
+      - personal-chat-controller
+      summary: Отправить личное сообщение
+      operationId: filterMessages_1
+      parameters:
+      - name: query
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 10
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+          default: 0
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonalMessage'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        "201":
+          description: Created
+  /social/v1/subscribe/user/{userId}/from/user{deleteUserId}:
+    delete:
+      tags:
+      - subscribe-controller
+      summary: Удалить подписку
+      operationId: deleteComment
+      parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: deleteUserId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        text:
+          maxLength: 1024
+          minLength: 0
+          type: string
+        photoLinks:
+          maxItems: 5
+          minItems: 0
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        geo:
+          type: string
+    Comment:
+      type: object
+      properties:
+        commentId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        postId:
+          type: string
+          format: uuid
+        authorFirstName:
+          type: string
+        authorMiddleName:
+          type: string
+        authorLastName:
+          type: string
+        avatarLink:
+          type: string
+        text:
+          maxLength: 256
+          minLength: 0
+          type: string
+        photoLinks:
+          maxItems: 5
+          minItems: 0
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+    PersonalMessage:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        senderUserId:
+          type: string
+          format: uuid
+        text:
+          maxLength: 1024
+          minLength: 0
+          type: string
+        photoLinks:
+          maxItems: 10
+          minItems: 0
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+    Subscribe:
+      type: object
+      properties:
+        subscribeTo:
+          type: string
+          format: uuid
