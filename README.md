@@ -41,34 +41,34 @@
 ---
 ## Размер запросов:
 [Google Sheets расчеты](https://docs.google.com/spreadsheets/d/155onyxw7PWFR-YExZn2ziP-an_p7lt6MJ3RuJGw5PVI/edit?usp=sharing)
-#### _WRITE  Пост: 2 MB_
+#### _WRITE  Пост: 2,44 KB_
 - ID пользователя: 8 B
 - Текст поста: 512 символа * 2 B = 1 024 B
-- Массив фотографий: 5 фото * 400 KB = 2 000 KB = 2 MB
+- Массив ссылок на фотографий (сами фото грузятся в S3 хранилище): 5 ссылок * 256 B = 1 280 B
 - ГЕО: 128 байт
 
-#### _READ Посты в ленте/фильтрации: 2 MB_
+#### _READ Посты в ленте/фильтрации: 2,8 KB_
 - ID поста: 8 B
 - ID автора: 8 B
 - ФИО автора: 256 B
-- Аватар автора: 100 KB
+- Ссылка на Аватар автора: 256 B
 - Текст поста: 512 символа * 2 B = 1 KB
-- Фотографии: 2 MB
+- Массив ссылок на фотографий (сами фото грузятся в S3 хранилище): 5 ссылок * 256 B = 1 280 B
 - Счетчик лайков: 4 символа * 2 B = 8 B
 - Счетчик лайков: 4 символа * 2 B = 8 B
 
-#### _WRITE Комментарий: 400 KB_
+#### _WRITE Комментарий: 528 B_
 - ID поста: 8 B
 - ID пользователя: 8 B
 - Текст комментария: 128 символа * 2 B = 256 B
-- Массив фото: 1 фото * 400 KB = 400 KB
+- Массив ссылок на фото: 1 фото * 256 B = 256 B
 
-#### _READ Комментарий: 500 KB_
+#### _READ Комментарий: 1 KB_
 - ID комментария: 8 B
 - ID поста: 8 B
 - ID пользователя: 8 B
 - ФИО автора: 256 B
-- Аватар автора: 100 KB
+- Аватар автора(ссылка): 256 B
 - Текст комментария: 128 символа * 2 B = 256 B
 - Массив фотографий: 400 KB
 
@@ -77,10 +77,10 @@
 - ID получателя: 8 B
 - Текст сообщения: 128 символа * 2 B = 256 B
 
-#### _READ/WRITE Личное сообщение фото: 800 KB_
+#### _READ/WRITE Личное сообщение фото: 528 B_
 - ID отправителя: 8 B
 - ID получателя: 8 B
-- Фото в сообщении: 2 * 400 KB = 800 KB
+- Ссылка на Фото в сообщении: 2 * 256 B = 512 KB
 
 #### _WRITE Фильтр на поиск ТОП мест: 128 B_
 - Текст запроса: 64 символа * 2 B = 128 B
@@ -98,41 +98,34 @@
 ## Расчеты:
 ```
 WRITE User traffic per day = 
-Посты(0.14) * 2 MB + 
-Подписка(0.14) * 24 B + 
-Комментарии(10) * 0.4 MB +
+Посты(0.14) * 2,4 KB + 
+Комментарии(10) * 528 B +
 Поиск мест(3) * 128 B + 
-Личные сообщения текст(100) * 272 B +
-Личные сообщения фото(20) * 800KB +
-Лайки(50) * 24 B = 20311989,76 B = 20 MB;
+Лайки(50) * 24 B = 2 KB;
 
-READ User traffic per day = 
-Личные сообщения текст(200) * 272 B +
-Личные сообщения фото(20) * 800KB +
-Чтение комментариев(200) * 500 KB + 
-Просмотр постов(200) * 2 MB = 536 MB;
+READ User traffic per day =
+Просмотр постов(200) * 2,8 KB = 560 KB;
 
-User requests per day = 0.14 + 0.14 + 10 + 100 + 20 + 50 + 3 + 200 + 200 + 200 = 783;
+User requests per day = 0.14 + 50 + 3 + 10 + 200 = 263;
 
-RPS = DAU(10 000 000) * 783 / 86 400 = 90 657;
+RPS = DAU(10 000 000) * 263 / 86 400 = 30 456;
 
-DAU WRITE traffic per day = DAU * WRITE User traffic = 10 000 000 * 20 MB = 203 TB/day;
-DAU WRITE traffic per second = DAU write per day / 86 400 = 203 TB / 86 400 = 2 GB/sec;
+DAU WRITE traffic per day = DAU * WRITE User traffic = 10 000 000 * 2 KB = 20 GB/day;
+DAU WRITE traffic per second = DAU write per day / 86 400 = 20 GB / 86 400 = 231 KB/sec;
 
-DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 536 MB = 5364 TB/day;
-DAU READ traffic per second = DAU read per day / 86 400 = 5364 TB / 86 400 = 62 GB/sec;
+DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 560 KB = 5,69 GB/day;
+DAU READ traffic per second = DAU read per day / 86 400 = 5,69 GB / 86 400 = 65 MB/sec;
 ```
 
 CAPACITY
 ```
-количество дисков SSD(100TB) на 1 год =
+количество дисков HDD(6TB) на 1 год =
 365 * DAU write traffic per day / SSD capacity =
-365 * 203 TB / 100 TB = 741
-
-количество дисков SSD(100TB) + 50% для подстраховки = 1112
+365 * 20 GB / 6 TB = 1,2 = 2
 ```
 
 THROUGHPUT
 ```
-throughput = MAX DAU traffic per second = 62 GB
+throughput = MAX DAU traffic per second = 65 MB/sec;
+соответственно выбор HDD оправдан с его пропускной способностью в 100 MB/sec
 ```
