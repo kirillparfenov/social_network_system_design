@@ -151,6 +151,7 @@ throughput = MAX DAU traffic per second = 65 MB/sec;
 ### Шардинг
 - без шардирования;
 
+[Расчеты в Goggle Sheets](https://docs.google.com/spreadsheets/d/155onyxw7PWFR-YExZn2ziP-an_p7lt6MJ3RuJGw5PVI/edit?usp=sharing)
 ### Расчет трафика личных сообщений:
 ```
 WRITE User traffic per day =
