@@ -95,7 +95,7 @@
 - ID подписчика: 8 B
 - ID путешественника: 8 B
 ---
-## Расчеты:
+## Расчеты Постов:
 ```
 WRITE User traffic per day = 
 Посты(0.14) * 2,4 KB + 
@@ -113,19 +113,103 @@ RPS = DAU(10 000 000) * 263 / 86 400 = 30 456;
 DAU WRITE traffic per day = DAU * WRITE User traffic = 10 000 000 * 2 KB = 20 GB/day;
 DAU WRITE traffic per second = DAU write per day / 86 400 = 20 GB / 86 400 = 231 KB/sec;
 
-DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 560 KB = 5,69 GB/day;
+DAU READ traffic per day = DAU * READ User traffic per day = 10 000 000 * 560 KB = 5,69 TB/day;
 DAU READ traffic per second = DAU read per day / 86 400 = 5,69 GB / 86 400 = 65 MB/sec;
 ```
 
-CAPACITY
+CAPACITY посты:
 ```
 количество дисков HDD(6TB) на 1 год =
 365 * DAU write traffic per day / HDD capacity =
 365 * 20 GB / 6 TB = 1,2 = 2
 ```
 
-THROUGHPUT
+THROUGHPUT посты:
 ```
 throughput = MAX DAU traffic per second = 65 MB/sec;
 соответственно выбор HDD оправдан с его пропускной способностью в 100 MB/sec
+```
+
+---
+## Распределенное Хранение Данных
+
+### БД
+- Хранение данных: PostgreSQL;
+- Хранение фотографий, медиа: S3 хранилище;
+
+### Репликация
+- Master -> semisync-slave -> async-slave
+
+### CAP
+- В проектируемой системе трафик на запись гораздо ниже, чем трафик на чтение - поэтому делаем упор на проектирование CP-системы - разрешаем читать, но запрещаем писать, если "обрубили кабель".
+
+### Партиционирование
+- key-based, горизонтальное партиционирование для таблицы пользователей
+
+### Шардинг
+- без шардирования;
+
+[Расчеты в Goggle Sheets](https://docs.google.com/spreadsheets/d/155onyxw7PWFR-YExZn2ziP-an_p7lt6MJ3RuJGw5PVI/edit?usp=sharing)
+### Расчет трафика личных сообщений:
+```
+WRITE User traffic per day =
+Сообщения текстом (100) * 272 B +
+Сообщения фотографиями (20)(массив ссылок - в одном сообщении в среднем по ссылки) * 528 B
+= 37760 B = 37 KB
+
+READ User traffic per day =
+Сообщения текстом (200) * 272 B
+Сообщения фотографиями (40)(массив ссылок - в одном сообщении в среднем по ссылки) * 528 B
+= 75520 B = 75 KB
+
+DAU WRITE/day = DAU * WRITE User traffic = 10 000 000 * 37 KB = 377 GB/day;
+DAU WRITE/sec = 377 GB/day / 86 400 = 4,37 MB/sec;
+
+DAU READ/day = DAU * READ User traffic per day = 10 000 000 * 75 KB = 755 GB/day;
+DAU READ/sec = 755 GB/day / 86 400 = 8,74 MB/sec;
+```
+CAPACITY личные сообщения:
+```
+Capacity = Days * DAU WRITE/day(TB) * Replication Factor / HDD-capacity =
+365 days * 377 GB/day * 3 / 6 TB = 69 дисков (по 6 TB);
+```
+THROUGHPUT личные сообщения:
+```
+Throughput = MAX DAU/sec = 8,74 MB/sec;
+соответственно выбор HDD оправдан с его пропускной способностью в 100 MB/sec
+```
+
+### Расчет трафика фотографий (физические файлы). Одно фото 400 KB:
+```
+WRITE User traffic per day =
+Фото в личных сообщениях (20 сообщений по 2 фотографии в каждом)(40) * 400 KB +
+Фото в комментариях (10) * 400 KB +
+Фото в постах (0.14 * 5) * 400 KB
+= 20 MB
+
+READ User traffic per day =
+Фото в личных сообщениях(80) * 400 KB +
+Фото в комментариях (200 комментариев по 1 фотке) * 400 KB +
+Фото в постах (200 постов по 5 фотографий) * 400 KB
+= 512 MB
+
+DAU WRITE/day = DAU * WRITE User traffic = 10 000 000 * 20 MB = 202 TB/day;
+DAU WRITE/sec = 202 GB/day / 86 400 = 2,34 GB/sec;
+
+DAU READ/day = DAU * READ User traffic = 10 000 000 * 512 MB = 5120 TB/day;
+DAU READ/sec = 5120 TB/day / 86 400 = 59,25 GB/sec;
+
+```
+CAPACITY фотографии (физические файлы):
+```
+SSD по 100 TB - нужна бОльшая пропускная способность на запись и чтение файлов.
+
+Capacity = Days * DAU WRITE/day(TB) * Replication Factor / SSD-capacity =
+365 days * 202 TB/day * 3 / 100 TB = 2 221 дисков (по 6 TB);
+```
+THROUGHPUT фотографии (физические файлы):
+```
+Throughput = MAX DAU/sec = 59,25 GB/sec;
+
+Использование RAID - массива для повышения пропускной способности на чтение.
 ```
