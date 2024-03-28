@@ -213,3 +213,5 @@ Throughput = MAX DAU/sec = 59,25 GB/sec;
 
 Использование RAID - массива для повышения пропускной способности на чтение.
 ```
+
+![diagram](/diagram/Diagram.jpg)
